@@ -1,0 +1,71 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "enableAcceleratedNetworking": {
+            "value": true
+        },
+        "networkSecurityGroupName": {
+            "value": "Tpotnsg898"
+        },
+        "subnetName": {
+            "value": "default"
+        },
+        "virtualNetworkId": {
+            "value": "/subscriptions/1a03d066-e080-47d9-9bf7-2c3cf96328af/resourceGroups/HoneyPots/providers/Microsoft.Network/virtualNetworks/HoneyPots-vnet"
+        },
+        "publicIpAddressName": {
+            "value": "Tpotip679"
+        },
+        "publicIpAddressType": {
+            "value": "Dynamic"
+        },
+        "publicIpAddressSku": {
+            "value": "Basic"
+        },
+        "virtualMachineName": {
+            "value": "Tpot"
+        },
+        "osDiskType": {
+            "value": "StandardSSD_LRS"
+        },
+        "dataDisks": {
+            "value": [
+                {
+                    "lun": 0,
+                    "createOption": "attach",
+                    "caching": "None",
+                    "writeAcceleratorEnabled": false,
+                    "id": null,
+                    "name": "Tpot_DataDisk_0",
+                    "storageAccountType": null,
+                    "diskSizeGB": null,
+                    "diskEncryptionSet": null
+                }
+            ]
+        },
+        "dataDiskResources": {
+            "value": [
+                {
+                    "name": "Tpot_DataDisk_0",
+                    "sku": "StandardSSD_LRS",
+                    "properties": {
+                        "diskSizeGB": 128,
+                        "creationData": {
+                            "createOption": "empty"
+                        }
+                    }
+                }
+            ]
+        },
+        "virtualMachineSize": {
+            "value": "Standard_D4s_v3"
+        },
+        "adminUsername": {
+            "value": "tpot_user"
+        },
+        "adminPasswordOrKey": {
+            "value": null
+        }
+    }
+}
