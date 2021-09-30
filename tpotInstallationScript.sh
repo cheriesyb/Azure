@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Update and upgrade OS
-sudo apt-get update -y && sudo apt-get upgrade -y
+sudo apt-get update -y
+sudo apt-get upgrade -y
 
 # Install Git
 sudo apt-get install git -y
