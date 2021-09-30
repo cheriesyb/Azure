@@ -69,6 +69,27 @@
     },
     "resources": [
         {
+            "name": "TpotVMExtensionScript",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "providers(‘Microsoft.Compute’,’virtualMachines/extensions’).apiVersions[0]",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/', parameters('virtualMachineName'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.1",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                "fileUris": [
+                    "https://github.com/cheriesyb/Azure/blob/main/tpotInstallationScript.sh"
+                ],
+                "commandToExecute": "tpotInstallationScript.sh"
+                }
+            }
+            },
+        {
             "name": "[variables('networkInterfaceName')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "providers(‘Microsoft.Network’,’networkInterfaces’).apiVersions[0]",
