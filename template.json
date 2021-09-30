@@ -2,42 +2,12 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "enableAcceleratedNetworking": {
-            "type": "bool"
-        },
-        "networkSecurityGroupName": {
-            "type": "string"
-        },
-        "subnetName": {
-            "type": "string"
-        },
-        "virtualNetworkId": {
-            "type": "string"
-        },
-        "publicIpAddressName": {
-            "type": "string"
-        },
-        "publicIpAddressType": {
-            "type": "string"
-        },
-        "publicIpAddressSku": {
-            "type": "string"
-        },
         "virtualMachineName": {
             "type": "string",
             "defaultValue": "Tpot", 
             "metadata":{
                 "description": "The name of your Virtual Machine"
             }
-        },
-        "osDiskType": {
-            "type": "string"
-        },
-        "dataDisks": {
-            "type": "array"
-        },
-        "dataDiskResources": {
-            "type": "array"
         },
         "virtualMachineSize": {
             "type": "string",
@@ -62,19 +32,28 @@
             "metadata": {
                 "description": "Type of authentication to use on the Virtual Machine. SSH key is recommended."
             }
-    },
+        },
         "adminPasswordOrKey": {
             "type": "secureString",
             "metadata": {
                 "description": "SSH Key or password for the Virtual Machine. SSH key is recommended."
             }
+        },
+        "enableAcceleratedNetworking": {
+            "type": "bool"
         }
+        
     },
     "variables": {
         "networkInterfaceName": "tpot252",
-        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]",
-        "vnetId": "[parameters('virtualNetworkId')]",
-        "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
+        "networkSecurityGroupName": "Tpotnsg898",
+        "subnetName": "default",
+        "publicIpAddressName": "Tpotip679",
+        "publicIpAddressType": "Dynamic",
+        "publicIpAddressSku": "Basic",
+        "osDiskType": "StandardSSD_LRS",
+        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('subnetName'))]",
         "location": "[resourceGroup().location]",
         "linuxConfiguration": {
             "disablePasswordAuthentication": true,
@@ -95,8 +74,8 @@
             "apiVersion": "providers(‘Microsoft.Network’,’networkInterfaces’).apiVersions[0]",
             "location": "[variables('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName'))]",
-                "[concat('Microsoft.Network/publicIpAddresses/', parameters('publicIpAddressName'))]"
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -108,7 +87,7 @@
                             },
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIpAddress": {
-                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', parameters('publicIpAddressName'))]"
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
                             }
                         }
                     }
@@ -120,7 +99,7 @@
             }
         },
         {
-            "name": "[parameters('networkSecurityGroupName')]",
+            "name": "[variables('networkSecurityGroupName')]",
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "providers(‘Microsoft.Network’,’networkSecurityGroups’).apiVersions[0]",
             "location": "[variables('location')]",
@@ -143,29 +122,30 @@
             }
         },
         {
-            "name": "[parameters('publicIpAddressName')]",
+            "name": "[variables('publicIpAddressName')]",
             "type": "Microsoft.Network/publicIpAddresses",
             "apiVersion": "providers(‘Microsoft.Network’,’publicIPAddresses’).apiVersions[0]",
             "location": "[variables('location')]",
             "properties": {
-                "publicIpAllocationMethod": "[parameters('publicIpAddressType')]"
+                "publicIpAllocationMethod": "[variables('publicIpAddressType')]"
             },
             "sku": {
-                "name": "[parameters('publicIpAddressSku')]"
+                "name": "[variables('publicIpAddressSku')]"
             }
         },
         {
-            "name": "[parameters('dataDiskResources')[copyIndex()].name]",
+            "name": "Tpot_DataDisk_0",
             "type": "Microsoft.Compute/disks",
             "apiVersion": "2020-12-01",
             "location": "[variables('location')]",
-            "properties": "[parameters('dataDiskResources')[copyIndex()].properties]",
+            "properties": {
+                        "diskSizeGB": 128,
+                        "creationData": {
+                            "createOption": "empty"
+                        }
+                    },
             "sku": {
-                "name": "[parameters('dataDiskResources')[copyIndex()].sku]"
-            },
-            "copy": {
-                "name": "managedDiskResources",
-                "count": "[length(parameters('dataDiskResources'))]"
+                "name": "StandardSSD_LRS"
             }
         },
         {
@@ -185,7 +165,7 @@
                     "osDisk": {
                         "createOption": "fromImage",
                         "managedDisk": {
-                            "storageAccountType": "[parameters('osDiskType')]"
+                            "storageAccountType": "[variables('osDiskType')]"
                         }
                     },
                     "imageReference": {
@@ -194,20 +174,19 @@
                         "sku": "10",
                         "version": "latest"
                     },
-                    "copy": [
+                    "dataDisks": [
                         {
                             "name": "dataDisks",
-                            "count": "[length(parameters('dataDisks'))]",
                             "input": {
-                                "lun": "[parameters('dataDisks')[copyIndex('dataDisks')].lun]",
-                                "createOption": "[parameters('dataDisks')[copyIndex('dataDisks')].createOption]",
-                                "caching": "[parameters('dataDisks')[copyIndex('dataDisks')].caching]",
-                                "diskSizeGB": "[parameters('dataDisks')[copyIndex('dataDisks')].diskSizeGB]",
+                                "lun": 0,
+                                "createOption": "attach",
+                                "caching": "None",
+                                "diskSizeGB": null,
                                 "managedDisk": {
-                                    "id": "[coalesce(parameters('dataDisks')[copyIndex('dataDisks')].id, if(equals(parameters('dataDisks')[copyIndex('dataDisks')].name, json('null')), json('null'), resourceId('Microsoft.Compute/disks', parameters('dataDisks')[copyIndex('dataDisks')].name)))]",
-                                    "storageAccountType": "[parameters('dataDisks')[copyIndex('dataDisks')].storageAccountType]"
+                                    "id": "null",
+                                    "storageAccountType": null
                                 },
-                                "writeAcceleratorEnabled": "[parameters('dataDisks')[copyIndex('dataDisks')].writeAcceleratorEnabled]"
+                                "writeAcceleratorEnabled": false
                             }
                         }
                     ]
