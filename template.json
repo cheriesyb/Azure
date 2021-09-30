@@ -51,9 +51,11 @@
         "publicIpAddressName": "Tpotip679",
         "publicIpAddressType": "Dynamic",
         "publicIpAddressSku": "Basic",
+        "addressPrefix": "10.0.0.0/16", 
         "osDiskType": "StandardSSD_LRS",
-        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
-        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('subnetName'))]",
+        "nsgId": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+        "virtualNetworkName": "vnet",
+        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('virtualNetworkName'), variables('subnetName'))]",
         "location": "[resourceGroup().location]",
         "linuxConfiguration": {
             "disablePasswordAuthentication": true,
@@ -69,9 +71,9 @@
     },
     "resources": [
         {
-            "name": "TpotVMExtensionScript",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "apiVersion": "providers(‘Microsoft.Compute’,’virtualMachines/extensions’).apiVersions[0]",
+            "name": "tpot/customScript",
+            "apiVersion": "2020-12-01",
             "location": "[variables('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines/', parameters('virtualMachineName'))]"
@@ -82,17 +84,43 @@
                 "typeHandlerVersion": "2.1",
                 "autoUpgradeMinorVersion": true,
                 "settings": {
-                "fileUris": [
-                    "https://github.com/cheriesyb/Azure/blob/main/tpotInstallationScript.sh"
-                ],
-                "commandToExecute": "tpotInstallationScript.sh"
+                    "fileUris": ["https://github.com/cheriesyb/Azure/blob/main/tpotInstallationScript.sh"],
+                    "commandToExecute": "bash tpotInstallationScript.sh"
                 }
             }
-            },
+        },
+        {
+            "apiVersion": "2020-11-01",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('virtualNetworkName')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('addressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+              }
+            }
+          }
+        ]
+      }
+
+        },
         {
             "name": "[variables('networkInterfaceName')]",
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "providers(‘Microsoft.Network’,’networkInterfaces’).apiVersions[0]",
+            "apiVersion": "2020-11-01",
             "location": "[variables('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
@@ -108,7 +136,7 @@
                             },
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIpAddress": {
-                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
                             }
                         }
                     }
@@ -122,7 +150,7 @@
         {
             "name": "[variables('networkSecurityGroupName')]",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "providers(‘Microsoft.Network’,’networkSecurityGroups’).apiVersions[0]",
+            "apiVersion": "2020-11-01",
             "location": "[variables('location')]",
             "properties": {
                 "securityRules": [
@@ -145,7 +173,7 @@
         {
             "name": "[variables('publicIpAddressName')]",
             "type": "Microsoft.Network/publicIpAddresses",
-            "apiVersion": "providers(‘Microsoft.Network’,’publicIPAddresses’).apiVersions[0]",
+            "apiVersion": "2020-11-01",
             "location": "[variables('location')]",
             "properties": {
                 "publicIpAllocationMethod": "[variables('publicIpAddressType')]"
@@ -157,7 +185,7 @@
         {
             "name": "Tpot_DataDisk_0",
             "type": "Microsoft.Compute/disks",
-            "apiVersion": "2020-12-01",
+            "apiVersion": "2020-09-30",
             "location": "[variables('location')]",
             "properties": {
                         "diskSizeGB": 128,
@@ -172,10 +200,9 @@
         {
             "name": "[parameters('virtualMachineName')]",
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "providers(‘Microsoft.Compute’,’virtualMachines’).apiVersions[0]",
+            "apiVersion": "2020-12-01",
             "location": "[variables('location')]",
             "dependsOn": [
-                "managedDiskResources",
                 "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'))]"
             ],
             "properties": {
