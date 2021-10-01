@@ -15,7 +15,7 @@
             "value": "password"
         },
         "adminPasswordOrKey": {
-            "value": "TpotDeployment56"
+            "value": null
         },
         "enableAcceleratedNetworking": {
             "value": true

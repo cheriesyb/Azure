@@ -22,7 +22,7 @@
         },
         "adminPasswordOrKey": {
             "type": "securestring",
-            "defaultValue": "TpotDeployment56",
+            "defaultValue": null,
             "metadata": {
                 "description": "SSH Key or password for the Virtual Machine. SSH key is recommended."
             }
@@ -77,10 +77,9 @@
                 "typeHandlerVersion": "2.1",
                 "autoUpgradeMinorVersion": true,
                 "settings": {
-                    "skipDosUnix": false
                 },
                 "protectedSettings": {
-                    "fileUris": ["https://github.com/cheriesyb/Azure/blob/main/tpotInstallationScript.sh"],
+                    "fileUris": ["https://raw.githubusercontent.com/cheriesyb/Azure/main/tpotInstallationScript.sh"],
                     "commandToExecute": "bash tpotInstallationScript.sh"
                 }
             }
