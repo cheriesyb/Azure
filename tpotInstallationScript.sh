@@ -8,7 +8,7 @@ sudo apt-get upgrade -y
 sudo apt-get install git -y
 
 # Git clone the T-pot repository
-git clone https://github.com/cheriesyb/tpotce.git
+git clone https://github.com/telekom-security/tpotce.git
 
 # Execute installation script
 cd tpotce/iso/installer/
