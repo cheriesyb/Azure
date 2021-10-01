@@ -120,16 +120,58 @@
         "properties": {
             "securityRules": [
                 {
-                    "name": "SSH",
+                    "name": "tpotSSH",
                     "properties": {
                         "description": "SSH access",
                         "protocol": "TCP",
                         "sourcePortRange": "*",
-                        "destinationPortRange": "22",
+                        "destinationPortRange": "64295",
                         "sourceAddressPrefix": "*",
                         "destinationAddressPrefix": "*",
                         "access": "Allow",
                         "priority": 100,
+                        "direction": "Inbound"
+                    }
+                },
+                {
+                    "name": "tpotWEB",
+                    "properties": {
+                        "description": "WEB access",
+                        "protocol": "TCP",
+                        "sourcePortRange": "*",
+                        "destinationPortRange": "64297",
+                        "sourceAddressPrefix": "*",
+                        "destinationAddressPrefix": "*",
+                        "access": "Allow",
+                        "priority": 120,
+                        "direction": "Inbound"
+                    }
+                },
+                {
+                    "name": "tpotAdmin",
+                    "properties": {
+                        "description": "ADMIN access",
+                        "protocol": "TCP",
+                        "sourcePortRange": "*",
+                        "destinationPortRange": "64294",
+                        "sourceAddressPrefix": "*",
+                        "destinationAddressPrefix": "*",
+                        "access": "Allow",
+                        "priority": 130,
+                        "direction": "Inbound"
+                    }
+                },
+                {
+                    "name": "tpotALL",
+                    "properties": {
+                        "description": "ALL access",
+                        "protocol": "TCP",
+                        "sourcePortRange": "*",
+                        "destinationPortRange": "0-64293,64298-65535",
+                        "sourceAddressPrefix": "*",
+                        "destinationAddressPrefix": "*",
+                        "access": "Allow",
+                        "priority": 140,
                         "direction": "Inbound"
                     }
                 }
