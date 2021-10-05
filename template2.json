@@ -167,7 +167,7 @@
                         "description": "ALL access",
                         "protocol": "TCP",
                         "sourcePortRange": "*",
-                        "destinationPortRange": ["0-64293","64298-65535"],
+                        "destinationPortRanges": ["0-64293","64298-65535"],
                         "sourceAddressPrefix": "*",
                         "destinationAddressPrefix": "*",
                         "access": "Allow",
